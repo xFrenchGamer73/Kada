@@ -1,20 +1,15 @@
-# Utiliser une image officielle de Node.js comme base
-FROM node:14
+FROM node:20
+ARG NODE_ENV=development
+ENV NODE_ENV=${NODE_ENV}
 
-# Définir le répertoire de travail
-WORKDIR /app
-
-# Copier les fichiers package.json et yarn.lock
+WORKDIR /opt/
 COPY package.json yarn.lock ./
+ENV PATH /opt/node_modules/.bin:$PATH
+RUN yarn config set network-timeout 600000 -g && yarn install
 
-# Installer les dépendances
-RUN yarn install
-
-# Copier le reste du code de l'application
+WORKDIR /opt/app
 COPY . .
-
-# Exposer le port sur lequel l'application va fonctionner
+RUN yarn build
+ENV STRAPI_APP_BACKEND_URL=http://localhost:1337
 EXPOSE 5173
-
-# Définir la commande pour exécuter l'application
-CMD ["yarn", "start"]
+CMD ["yarn", "dev","--host","0.0.0.0","--port","5173"]
