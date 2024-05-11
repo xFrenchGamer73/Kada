@@ -1,0 +1,228 @@
+version: "3"
+services:
+
+  # Projet 1: Strapi avec PostgreSQL et Frontend
+
+  strapi:
+    container_name: strapi
+    build: ./strapi-app
+    image: strapi:latest
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_CLIENT: ${DATABASE_CLIENT}
+      DATABASE_HOST: strapiDB
+      DATABASE_PORT: ${DATABASE_PORT}
+      DATABASE_NAME: ${DATABASE_NAME}
+      DATABASE_USERNAME: ${DATABASE_USERNAME}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      ADMIN_JWT_SECRET: ${ADMIN_JWT_SECRET}
+      APP_KEYS: ${APP_KEYS}
+      NODE_ENV: ${NODE_ENV}
+    volumes:
+      - ./strapi-app/config:/opt/app/config
+      - ./strapi-app/src:/opt/app/src
+      - ./strapi-app/package.json:/opt/package.json
+      - ./strapi-app/yarn.lock:/opt/yarn.lock
+      - ./.env:/opt/app/.env
+      - ./strapi-app/public/uploads:/opt/app/public/uploads
+    ports:
+      - "1338:1338"
+    networks:
+      - strapi
+    depends_on:
+      - strapiDB
+
+  strapiDB:
+    container_name: strapiDB
+    platform: linux/amd64
+    restart: unless-stopped
+    env_file: .env
+    image: postgres:12.0-alpine
+    environment:
+      POSTGRES_USER: ${DATABASE_USERNAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
+    volumes:
+      - strapi-data:/var/lib/postgresql/data/
+    ports:
+      - "5432:5432"
+    networks:
+      - strapi
+
+  frontend:
+    container_name: frontend
+    build: ./opsci-strapi-frontend
+    image: frontend:latest
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    environment:
+      REACT_APP_API_URL: http://localhost:1338
+      REACT_APP_API_TOKEN: ${STRAPI_TOKEN}
+    networks:
+      - strapi
+    depends_on:
+      - strapi
+
+  # Projet 2: Kafka avec Zookeeper
+
+  zookeeper:
+    container_name: zookeeper
+    image: lucye/zookeeper
+    restart: unless-stopped
+    ports:
+      - "2181:2181"
+    networks:
+      - strapi
+
+  kafka:
+    container_name: kafka
+    image: lucye/kafka
+    restart: unless-stopped
+    ports:
+      - "9092:9092"
+      - "9093:9093"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://localhost:9093,OUTSIDE://kafka:9092
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_DELETE_TOPIC_ENABLE: "true"
+      KAFKA_ADVERTISED_PORT: 9092
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_LISTENERS: INSIDE://0.0.0.0:9093,OUTSIDE://0.0.0.0:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
+      KAFKA_NO_LISTENER_AUTHENTICATION_PLAINTEXT: "true"
+      KAFKA_NO_LISTENER_AUTHENTICATION_SSL: "true"
+      KAFKA_BROKER_ID: 1
+      KAFKA_LOG_RETENTION_HOURS: 168
+      KAFKA_LOG_RETENTION_BYTES: 1073741824
+      KAFKA_LOG_DIRS: /kafka/logs
+      KAFKA_CREATE_TOPICS: "event:1:1,product:1:1,stock:1:1,errors:1:1"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - zookeeper
+    networks:
+      - strapi
+
+  event_consumer:
+    container_name: event_consumer
+    build: ./event-consumer
+    image: event_consumer:latest
+    restart: on-failure
+    env_file: .env
+    environment:
+      BROKER_1: ${BROKER_1}
+      BROKER_2: ${BROKER_2}
+      BROKER_3: ${BROKER_3}
+      STRAPI_TOKEN: ${STRAPI_TOKEN}
+      STRAPI_URL: ${STRAPI_URL}
+      TOPIC: ${EVENT_TOPIC}
+      BEGINNING: ${BEGINNING}
+      ERROR_TOPIC: ${ERROR_TOPIC}
+    depends_on:
+      - kafka
+    networks:
+      - strapi
+
+  event_producer:
+    container_name: event_producer
+    build: ./event-producer
+    image: event_producer:latest
+    restart: on-failure
+    env_file: .env
+    environment:
+      BROKER_1: ${BROKER_1}
+      BROKER_2: ${BROKER_2}
+      BROKER_3: ${BROKER_3}
+      TOPIC: ${EVENT_TOPIC}
+      FILE_NAME: ${FILE_NAME_EVENT}
+      ERROR_TOPIC: ${ERROR_TOPIC}
+    depends_on:
+      - kafka
+    networks:
+      - strapi
+
+  product_consumer:
+    container_name: product_consumer
+    build: ./product-consumer
+    image: product_consumer:latest
+    restart: on-failure
+    env_file: .env
+    environment:
+      BROKER_1: ${BROKER_1}
+      BROKER_2: ${BROKER_2}
+      BROKER_3: ${BROKER_3}
+      STRAPI_URL: ${STRAPI_URL}
+      STRAPI_TOKEN: ${STRAPI_TOKEN}
+      TOPIC: ${PRODUCT_TOPIC}
+      ERROR_TOPIC: ${ERROR_TOPIC}
+    depends_on:
+      - kafka
+    networks:
+      - strapi
+
+  product_producer:
+    container_name: product_producer
+    build: ./product-producer
+    image: product_producer:latest
+    restart: on-failure
+    env_file: .env
+    environment:
+      BROKER_1: ${BROKER_1}
+      BROKER_2: ${BROKER_2}
+      BROKER_3: ${BROKER_3}
+      TOPIC: ${PRODUCT_TOPIC}
+      FILE_NAME: ${FILE_NAME_PRODUCT}
+      ERROR_TOPIC: ${ERROR_TOPIC}
+    depends_on:
+      - kafka
+    networks:
+      - strapi
+
+  stock_consumer:
+    container_name: stock_consumer
+    build: ./stock-consumer
+    image: stock_consumer:latest
+    restart: on-failure
+    env_file: .env
+    environment:
+      BROKER_1: ${BROKER_1}
+      BROKER_2: ${BROKER_2}
+      BROKER_3: ${BROKER_3}
+      STRAPI_TOKEN: ${STRAPI_TOKEN}
+      STRAPI_URL: ${STRAPI_URL}
+      TOPIC: ${STOCK_TOPIC}
+      BEGINNING: ${BEGINNING}
+      ERROR_TOPIC: ${ERROR_TOPIC}
+    depends_on:
+      - kafka
+    networks:
+      - strapi
+
+  stock_producer:
+    container_name: stock_producer
+    build: ./stock-producer
+    image: stock_producer:latest
+    restart: on-failure
+    env_file: .env
+    environment:
+      BROKER_1: ${BROKER_1}
+      BROKER_2: ${BROKER_2}
+      BROKER_3: ${BROKER_3}
+      TOPIC: ${STOCK_TOPIC}
+      FILE_NAME: ${FILE_NAME_STOCK}
+    depends_on:
+      - kafka
+    networks:
+      - strapi
+volumes:
+  strapi-data:
+
+networks:
+  strapi:
+    name: Strapi
+    driver: bridge
