@@ -1,8 +1,8 @@
 # Utiliser une image officielle de Node.js comme base
-FROM node:14
+FROM node:18
 
 # Définir le répertoire de travail
-WORKDIR /opt/app
+WORKDIR /srv/app
 
 # Copier les fichiers package.json et yarn.lock
 COPY package.json yarn.lock ./
@@ -17,7 +17,7 @@ COPY . .
 RUN yarn build
 
 # Exposer le port sur lequel l'application va fonctionner
-EXPOSE 1338
+EXPOSE 1337
 
 # Définir la commande pour exécuter l'application
 CMD ["yarn", "start"]

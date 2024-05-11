@@ -14,7 +14,7 @@ RUN yarn install
 COPY . .
 
 # Exposer le port sur lequel l'application va fonctionner
-EXPOSE 3000
+EXPOSE 5173
 
 # Définir la commande pour exécuter l'application
 CMD ["yarn", "start"]

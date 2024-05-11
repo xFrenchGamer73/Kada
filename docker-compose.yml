@@ -28,7 +28,7 @@ services:
       - ./.env:/opt/app/.env
       - ./strapi-app/public/uploads:/opt/app/public/uploads
     ports:
-      - "1338:1338"
+      - "1337:1337"
     networks:
       - strapi
     depends_on:
@@ -59,7 +59,7 @@ services:
     ports:
       - "5173:5173"
     environment:
-      REACT_APP_API_URL: http://localhost:1338
+      REACT_APP_API_URL: http://localhost:1337
       REACT_APP_API_TOKEN: ${STRAPI_TOKEN}
     networks:
       - strapi
