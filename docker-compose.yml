@@ -70,7 +70,7 @@ services:
 
   zookeeper:
     container_name: zookeeper
-    image: lucye/zookeeper
+    image: zookeeper
     restart: unless-stopped
     ports:
       - "2181:2181"
@@ -79,7 +79,7 @@ services:
 
   kafka:
     container_name: kafka
-    image: lucye/kafka
+    image: bitnami/kafka:latest
     restart: unless-stopped
     ports:
       - "9092:9092"
