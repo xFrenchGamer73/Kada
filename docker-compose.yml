@@ -21,7 +21,7 @@ services:
       APP_KEYS: ${APP_KEYS}
       NODE_ENV: ${NODE_ENV}
     volumes:
-     - ./strapi-app/config:/opt/app/config
+      - ./strapi-app/config:/opt/app/config
       - ./strapi-app/src:/opt/app/src
       - ./strapi-app/package.json:/opt/package.json
       - ./strapi-app/yarn.lock:/opt/yarn.lock
