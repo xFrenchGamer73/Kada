@@ -21,11 +21,12 @@ services:
       APP_KEYS: ${APP_KEYS}
       NODE_ENV: ${NODE_ENV}
     volumes:
-      - /root/Data/config:/opt/app/config
-      - /root/Data/src:/opt/app/src
-      - /root/Data:/opt/
-      - /root/Data:/opt/app/
-      - /root/Data/uploads:/opt/app/public/uploads
+     - ./strapi-app/config:/opt/app/config
+      - ./strapi-app/src:/opt/app/src
+      - ./strapi-app/package.json:/opt/package.json
+      - ./strapi-app/yarn.lock:/opt/yarn.lock
+      - ./.env:/opt/app/.env
+      - ./strapi-app/public/uploads:/opt/app/public/uploads
     ports:
       - "1337:1337"
     networks:
