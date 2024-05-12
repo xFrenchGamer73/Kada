@@ -21,12 +21,12 @@ services:
       APP_KEYS: ${APP_KEYS}
       NODE_ENV: ${NODE_ENV}
     volumes:
-      - ./strapi-app/config:/opt/app/config
-      - ./strapi-app/src:/opt/app/src
-      - ./strapi-app/package.json:/opt/package.json
-      - ./strapi-app/yarn.lock:/opt/yarn.lock
-      - ./.env:/opt/app/.env
-      - ./strapi-app/public/uploads:/opt/app/public/uploads
+      - /root/Data/config:/opt/app/config
+      - /root/Data/src:/opt/app/src
+      - /root/Data/package.json:/opt/package.json
+      - /root/Data/yarn.lock:/opt/yarn.lock
+      - /root/Data/.env:/opt/app/.env
+      - /root/Data/uploads:/opt/app/public/uploads
     ports:
       - "1337:1337"
     networks:
@@ -45,7 +45,7 @@ services:
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
       POSTGRES_DB: ${DATABASE_NAME}
     volumes:
-      - strapi-data:/var/lib/postgresql/data/
+      - /root/Data/sql:/var/lib/postgresql/data/
     ports:
       - "5432:5432"
     networks:
@@ -214,8 +214,6 @@ services:
       - kafka
     networks:
       - strapi
-volumes:
-  strapi-data:
 
 networks:
   strapi:
