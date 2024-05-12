@@ -71,13 +71,14 @@ services:
     restart: unless-stopped
     ports:
       - "2181:2181"
+    expose:
+      - "2181"
     networks:
       - strapi
 
   kafka:
-    image: martynas/wurstmeister-kafka:latest
+    image: "bitnami/kafka:latest"
     container_name: kafka
-    restart: unless-stopped
     ports:
       - "9092:9092"
       - "9093:9093"
@@ -101,8 +102,6 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       - zookeeper
-    networks:
-      - strapi
 
   event_consumer:
     container_name: event_consumer
