@@ -2,9 +2,9 @@ const { Kafka } = require('kafkajs')
 const fs = require('fs')
 const csv = require('csv-parser')
 
-const BROKER_1 = process.env.BROKER_1 || 'localhost:9092'
-const BROKER_2 = process.env.BROKER_2 || 'localhost:9092'
-const BROKER_3 = process.env.BROKER_3 || 'localhost:9092'
+const BROKER_1 = process.env.BROKER_1 || '127.0.0.1:9092'
+const BROKER_2 = process.env.BROKER_2 || '127.0.0.1:9092'
+const BROKER_3 = process.env.BROKER_3 || '127.0.0.1:9092'
 const TOPIC = process.env.TOPIC || 'product'
 const FILE_NAME = process.env.FILE_NAME || './products.json'
 const ERROR_TOPIC = process.env.ERROR_TOPIC || 'errors'

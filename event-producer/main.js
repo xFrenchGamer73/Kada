@@ -2,9 +2,9 @@ import { Kafka } from 'kafkajs';
 import fs from 'fs';
 import csv from 'csv-parser';
 
-const BROKER_1 = process.env.BROKER_1 || 'localhost:9093';
-const BROKER_2 = process.env.BROKER_2 || 'localhost:9093';
-const BROKER_3 = process.env.BROKER_3 || 'localhost:9093';
+const BROKER_1 = process.env.BROKER_1 || '127.0.0.1:9093';
+const BROKER_2 = process.env.BROKER_2 || '127.0.0.1:9093';
+const BROKER_3 = process.env.BROKER_3 || '127.0.0.1:9093';
 const TOPIC = process.env.TOPIC || 'event';
 const FILE_NAME = process.env.FILE_NAME || "events.csv";
 const ERROR_TOPIC = process.env.ERROR_TOPIC || 'errors';

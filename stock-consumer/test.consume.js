@@ -1,9 +1,9 @@
 import { Kafka } from 'kafkajs'
 import { faker } from '@faker-js/faker'
 
-const BROKER_1 = process.env.BROKER_1 || 'localhost:9092'
-const BROKER_2 = process.env.BROKER_2 || 'localhost:9092'
-const BROKER_3 = process.env.BROKER_3 || 'localhost:9092'
+const BROKER_1 = process.env.BROKER_1 || '127.0.0.1:9092'
+const BROKER_2 = process.env.BROKER_2 || '127.0.0.1:9092'
+const BROKER_3 = process.env.BROKER_3 || '127.0.0.1:9092'
 
 const kafka = new Kafka({
   clientId: 'product-consumer',
