@@ -23,9 +23,8 @@ services:
     volumes:
       - /root/Data/config:/opt/app/config
       - /root/Data/src:/opt/app/src
-      - /root/Data/package.json:/opt/package.json
-      - /root/Data/yarn.lock:/opt/yarn.lock
-      - /root/Data/.env:/opt/app/.env
+      - /root/Data:/opt/
+      - /root/Data:/opt/app/
       - /root/Data/uploads:/opt/app/public/uploads
     ports:
       - "1337:1337"
